@@ -1,0 +1,162 @@
+% !TEX TS-program = lualatex
+% !TEX encoding = UTF-8
+
+\documentclass[11pt, twoside, french]{book}
+
+\input{nocturnale-romanum/common_headers}
+
+\usepackage{paracol}
+\usepackage{alltt}
+
+%% Specific geometry for KDP printing
+\geometry{
+paperwidth=8in,
+paperheight=10in,
+inner=25mm,
+outer=10mm,
+top=14mm,
+bottom=13mm,
+headsep=3mm,
+}
+% this updates the length used by fancyhead, otherwise the header is screwed up by the geometry change
+\fancyhfoffset[E,O]{0pt}
+
+%% outputs a score with label, indexing, and annotations. no initials if [n] is passed
+\makeatletter
+\renewcommand{\gscore}[6][y]{
+  %% #1 (passed as option) : y = initial, n = no initial
+  %% #2 : name of the score file, should be a code, e.g. Q4F4A3 or 1225N1R1
+  %% #3 : office-part among the values: T, H, A, P, R, I (toni communes, hy., ant., psalmus, resp., invit.)
+  %% #4 : if applicable, a number between 1 and 9 (rank of the ant./resp.) - else: empty
+  %% #5 : the indexed name of the piece
+  
+  %% #6 (specific to scores with translations) translation. 
+  
+  %% this prevents page breaks between the phantom section and its label, and the actual score.
+  \needspace{4\baselineskip} 
+  \protected@edef\@currentlabelname{#5}
+  \phantomsection
+  \label{#2}
+  %% we add the office part, and number of that ant. or resp. in the current office, if applicable
+  %% todo : the negative hspace is here because somehow the initial and annotation (first line only) are misaligned by 1mm _with this initial font size_.
+  %% this should probably be fixed in a more elegant way.
+  \greannotation[c]{\hspace{-1.4mm}\hspace{\defaultannotationshift}\officepartannotation{#3}#4}
+  %% if #5 (indexed name) is blank, nothing is indexed.
+  %% this is for pieces that are repetitions of another piece (antiphons after psalms)
+  \ifblank{#5}{}{\index[#3]{#5}}
+  %% if optional arg #1 has been passed as 'n', set no initial
+  \ifx n#1\gresetinitiallines{0}\fi
+  %% the use of a directory called "gabc" is linked
+  %% to the management of gabc files by the website: do not change 
+  %% without also changing the website static files structure
+  \columnratio{0.75}
+\ifblank{#6}{\gregorioscore{\subfix{nocturnale-romanum/gabc/#2}}}{%
+  \begin{paracol}{2}
+  \gregorioscore{\subfix{nocturnale-romanum/gabc/#2}}
+  \switchcolumn
+  \emph{\footnotesize #6}
+  \end{paracol}
+}
+    \columnratio{0.5} 
+  %% if optional arg #1 has been passed as 'n', unset no initial
+  \ifx n#1\gresetinitiallines{1}\fi
+  \vspace{1mm}
+}
+\makeatother
+
+%%% important, in relation with paracol: to avoid column separator extending above text
+\newlength{\ajustement}
+\setlength{\ajustement}{2mm}
+\newenvironment{customparacol}{
+	\vspace*{\ajustement}
+	\begin{paracol}{2}
+	\vspace*{-\ajustement}
+}{
+	\end{paracol}
+}
+
+\newcommand{\customswitchcolumn}{\switchcolumn\vspace*{-\ajustement}}
+
+\newcommand{\psaume}[2]{
+	\vspace{0.5\baselineskip}
+	\needspace{5\baselineskip}
+	\phantomsection
+	\label{Psalm#1_#2}
+	\index[P]{#1 (mode #2)}
+	\smalltitle{Psaume #1}
+	\vspace{2mm}
+	\begin{paracol}{2}
+	\begin{itemize}[
+		label=\null, 
+		leftmargin=0pt, 
+		itemindent=10pt, 
+		labelsep=0pt, 
+		labelwidth=0pt, 
+		rightmargin=0pt, 
+		parsep=0pt, 
+		itemsep=0pt plus 1pt minus 0pt,
+		topsep=-2mm]
+	\input{nocturnale-romanum/psalmi/#1_#2.tex}
+	\end{itemize}
+	\switchcolumn
+	\begin{itemize}[
+		label=\null, 
+		leftmargin=0pt, 
+		itemindent=10pt, 
+		labelsep=0pt, 
+		labelwidth=0pt, 
+		rightmargin=0pt, 
+		parsep=0pt, 
+		itemsep=0pt plus 1pt minus 0pt,
+		topsep=-2mm]
+	\input{psaumes_fr/#1.tex}
+	\end{itemize}
+	\end{paracol}
+}
+
+\renewcommand{\nocturn}[1]{
+  \ifx 1#1\intermediatetitle{Premier nocturne}\fi
+  \ifx 2#1\intermediatetitle{Deuxième nocturne}\fi
+  \ifx 3#1\intermediatetitle{Troisième nocturne}\fi
+}
+
+\newcommand{\resp}[3]{%
+\begin{paracol}{2}
+\rubric{Resp. #1}~~~~\rrrub #2
+\switchcolumn
+\rubric{Resp. #1}~~~~\rrrub #3
+\end{paracol}
+}
+
+\renewcommand{\versiculus}[4]{
+\begin{paracol}{2}
+{\par\vv #1 \\ \rr #2\par}
+\switchcolumn
+{\par\vv #3 \\ \rr #4\par}
+\end{paracol}
+}
+
+\renewcommand{\versiculus}[4]{
+\begin{paracol}{2}
+{\par\vv #1 \\ \rr #2\par}
+\switchcolumn
+{\par\vv #3 \\ \rr #4\par}
+\end{paracol}
+}
+
+\renewcommand{\versiculustpall}[4]{
+\versiculus{#1 \rubric{(T.P.} Allelúia.\rubric{)}}{#2 \rubric{(T.P.} Allelúia.\rubric{)}}{#3 \rubric{(T.P.} Alléluia.\rubric{)}}{#4 \rubric{(T.P.} Alléluia.\rubric{)}}
+}
+
+% We do not display NABC in this instance. This can be deactivated for NABC to show up.
+\gresetnabc{1}{invisible}
+
+\begin{document}
+
+\twosided[pc]
+\customsubfile{nrfr_prolegomena}
+\customsubfile{nrfr_commune_bmv}
+\customsubfile{nrfr_festis_bvm}
+
+\end{document}
+
