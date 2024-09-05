@@ -8,6 +8,8 @@
 \usepackage{paracol}
 \usepackage{alltt}
 
+
+
 %% Specific geometry for KDP printing
 \geometry{
 paperwidth=8in,
@@ -77,15 +79,33 @@ headsep=3mm,
 
 \newcommand{\customswitchcolumn}{\switchcolumn\vspace*{-\ajustement}}
 
-\newcommand{\psaume}[2]{
+\newcommand{\twoside}[2]{
+\begin{customparacol}
+#1
+\customswitchcolumn
+#2
+\end{customparacol}
+}
+
+\let\oldsmalltitle\smalltitle
+\renewcommand{\smalltitle}[1]{
 	\vspace{0.5\baselineskip}
+	\oldsmalltitle{#1}
+}
+
+\newcommand{\oratio}[2]{
+\smalltitle{Oraison}
+\twoside{#1}{#2}
+}
+
+\newcommand{\psaume}[2]{
 	\needspace{5\baselineskip}
 	\phantomsection
 	\label{Psalm#1_#2}
 	\index[P]{#1 (mode #2)}
 	\smalltitle{Psaume #1}
 	\vspace{2mm}
-	\begin{paracol}{2}
+	\begin{customparacol}
 	\begin{itemize}[
 		label=\null, 
 		leftmargin=0pt, 
@@ -98,7 +118,7 @@ headsep=3mm,
 		topsep=-2mm]
 	\input{nocturnale-romanum/psalmi/#1_#2.tex}
 	\end{itemize}
-	\switchcolumn
+	\customswitchcolumn
 	\begin{itemize}[
 		label=\null, 
 		leftmargin=0pt, 
@@ -111,7 +131,7 @@ headsep=3mm,
 		topsep=-2mm]
 	\input{psaumes_fr/#1.tex}
 	\end{itemize}
-	\end{paracol}
+	\end{customparacol}
 }
 
 \renewcommand{\nocturn}[1]{
@@ -121,31 +141,23 @@ headsep=3mm,
 }
 
 \newcommand{\resp}[3]{%
-\begin{paracol}{2}
-\rubric{Resp. #1}~~~~\rrrub #2
-\switchcolumn
-\rubric{Resp. #1}~~~~\rrrub #3
-\end{paracol}
+\twoside{%
+\rubric{Resp. #1}\hspace{\specialcharhsep}\rr #2%
+}{%
+\rubric{Resp. #1}\hspace{\specialcharhsep}\rr #3%
+}
 }
 
 \renewcommand{\versiculus}[4]{
-\begin{paracol}{2}
-{\par\vv #1 \\ \rr #2\par}
-\switchcolumn
-{\par\vv #3 \\ \rr #4\par}
-\end{paracol}
-}
-
-\renewcommand{\versiculus}[4]{
-\begin{paracol}{2}
-{\par\vv #1 \\ \rr #2\par}
-\switchcolumn
-{\par\vv #3 \\ \rr #4\par}
-\end{paracol}
+\twoside{\par\vv #1 \\ \rr #2\par}{\par\vv #3 \\ \rr #4\par}
 }
 
 \renewcommand{\versiculustpall}[4]{
 \versiculus{#1 \rubric{(T.P.} Allelúia.\rubric{)}}{#2 \rubric{(T.P.} Allelúia.\rubric{)}}{#3 \rubric{(T.P.} Alléluia.\rubric{)}}{#4 \rubric{(T.P.} Alléluia.\rubric{)}}
+}
+
+\renewcommand{\tptresrubric}{%
+\rubric{Au temps pascal, on dit les trois psaumes du nocturne sous cette unique antienne.}
 }
 
 % We do not display NABC in this instance. This can be deactivated for NABC to show up.
